@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Diabetic Retinopathy Detection</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+<header class="app-header">
+  <div class="header-icon">👁️</div>
+
+  <div class="header-title">
+    <h1>Diabetic Retinopathy Detection</h1>
+    <p>End-to-End ML Pipeline · CNN · TensorFlow · OpenCV</p>
+  </div>
+
+  <div class="badge">ML PIPELINE</div>
+</header>
+
+
+<div class="app-body">
+
+  <!-- ================= SIDEBAR ================= -->
+
+  <nav class="sidebar">
+
+    <div class="nav-label">Pipeline</div>
+
+    <div class="nav-item active" data-tab="tab-upload">
+      <span class="nav-icon">📂</span>
+      Load Image
+      <span class="nav-step">1</span>
+      <span class="status-dot active"></span>
+    </div>
+
+    <div class="nav-item" data-tab="tab-pre">
+      <span class="nav-icon">⚙️</span>
+      Preprocess
+      <span class="nav-step">2</span>
+      <span class="status-dot"></span>
+    </div>
+
+    <div class="nav-item" data-tab="tab-feat">
+      <span class="nav-icon">🔬</span>
+      Feature Extraction
+      <span class="nav-step">3</span>
+      <span class="status-dot"></span>
+    </div>
+
+    <div class="nav-item" data-tab="tab-train">
+      <span class="nav-icon">🚀</span>
+      Training
+      <span class="nav-step">4</span>
+      <span class="status-dot"></span>
+    </div>
+
+    <div class="nav-item" data-tab="tab-predict">
+      <span class="nav-icon">🧠</span>
+      Prediction
+      <span class="nav-step">5</span>
+      <span class="status-dot"></span>
+    </div>
+
+    <div class="nav-item" data-tab="tab-eval">
+      <span class="nav-icon">📊</span>
+      Evaluation
+      <span class="nav-step">6</span>
+      <span class="status-dot"></span>
+    </div>
+
+    <div class="nav-label" style="margin-top:18px;">
+      Docs
+    </div>
+
+    <div class="nav-item" data-tab="tab-run">
+      <span class="nav-icon">📘</span>
+      How to Run
+    </div>
+
+    <div class="nav-item" data-tab="tab-code">
+      <span class="nav-icon">💻</span>
+      Source Code
+    </div>
+
+  </nav>
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main class="main-area">
+
+
+    <!-- ===================================================== -->
+    <!-- TAB 1 : UPLOAD -->
+    <!-- ===================================================== -->
+
+    <section class="tab-panel active" id="tab-upload">
+
+      <div class="section-header">
+
+        <h2>📂 Load Input Image</h2>
+
+        <p>
+          Upload a retinal fundus image for diabetic retinopathy analysis.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="card-title">
+          Retinal Image Upload
+        </div>
+
+
+        <div class="upload-zone" id="uploadZone">
+
+          <div class="upload-icon">
+            🏥
+          </div>
+
+          <p style="font-size:1rem;font-weight:600;color:#e8e8ff;">
+            Drag & Drop Retinal Image
+          </p>
+
+          <p>
+            or click to browse your files
+          </p>
+
+          <p class="hint">
+            Supported: JPG · PNG · BMP · TIFF
+          </p>
+
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+          >
+
+        </div>
+
+
+        <div style="margin-top:16px;">
+
+          <button
+            class="btn btn-primary"
+            id="uploadBtn"
+            onclick="document.getElementById('fileInput').click()"
+          >
+            📂 Choose Image
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- IMAGE PREVIEW -->
+
+      <div
+        class="card"
+        id="previewBox"
+        style="display:none;"
+      >
+
+        <div class="card-title">
+          Preview & File Information
+        </div>
+
+
+        <div
+          style="
+          display:grid;
+          grid-template-columns:200px 1fr;
+          gap:24px;
+          align-items:start;
+          "
+        >
+
+          <div class="img-box">
+
+            <img
+              id="previewImg"
+              src=""
+              alt="Preview"
+            >
+
+          </div>
+
+
+          <div class="stats-grid">
+
+            <div class="stat-card">
+
+              <div
+                class="stat-value"
+                id="imgFilename"
+              >
+                —
+              </div>
+
+              <div class="stat-label">
+                Filename
+              </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+              <div
+                class="stat-value"
+                id="imgSize"
+              >
+                —
+              </div>
+
+              <div class="stat-label">
+                File Size
+              </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+              <div
+                class="stat-value"
+                id="imgDims"
+              >
+                —
+              </div>
+
+              <div class="stat-label">
+                Dimensions
+              </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+              <div
+                class="stat-value"
+                id="imgType"
+              >
+                —
+              </div>
+
+              <div class="stat-label">
+                Format
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div style="margin-top:18px;">
+
+          <button
+            class="btn btn-primary"
+            onclick="switchTab('tab-pre')"
+          >
+            Next: Preprocess →
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- TAB 2 : PREPROCESS -->
+    <!-- ===================================================== -->
+
+    <section
+      class="tab-panel"
+      id="tab-pre"
+    >
+
+      <div class="section-header">
+
+        <h2>⚙️ Image Preprocessing</h2>
+
+        <p>
+          Resize → CLAHE → Gaussian Blur → Normalisation
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="card-title">
+          Preprocessing Configuration
+        </div>
+
+
+        <div
+          style="
+          display:flex;
+          gap:25px;
+          flex-wrap:wrap;
+          margin-bottom:18px;
+          "
+        >
+
+          <div>
+            <small>Resize</small>
+            <strong>224 × 224</strong>
+          </div>
+
+          <div>
+            <small>CLAHE</small>
+            <strong>Clip Limit 2.0</strong>
+          </div>
+
+          <div>
+            <small>Tile Grid</small>
+            <strong>8 × 8</strong>
+          </div>
+
+          <div>
+            <small>Gaussian Blur</small>
+            <strong>3 × 3</strong>
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          id="preprocessBtn"
+        >
+          ⚙️ Run Preprocessing
+        </button>
+
+      </div>
+
+
+      <div
+        class="card"
+        id="preCompareCard"
+        style="display:none;"
+      >
+
+        <div class="card-title">
+          Before vs After
+        </div>
+
+
+        <div class="compare-grid">
+
+          <div>
+
+            <div class="img-box">
+
+              <img
+                id="origImg"
+                src=""
+                alt="Original"
+              >
+
+            </div>
+
+            <div class="img-label">
+              Original
+            </div>
+
+          </div>
+
+
+          <div>
+
+            <div class="img-box">
+
+              <img
+                id="procImg"
+                src=""
+                alt="Processed"
+              >
+
+            </div>
+
+            <div class="img-label">
+              CLAHE + Gaussian Blur
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="card"
+        id="preStats"
+        style="display:none;"
+      >
+
+        <div class="card-title">
+          Image Statistics
+        </div>
+
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <div class="stat-value" id="statW">—</div>
+            <div class="stat-label">Width</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statH">—</div>
+            <div class="stat-label">Height</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statOM">—</div>
+            <div class="stat-label">Original Mean</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statPM">—</div>
+            <div class="stat-label">Processed Mean</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statOS">—</div>
+            <div class="stat-label">Original Std</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statPS">—</div>
+            <div class="stat-label">Processed Std</div>
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          onclick="switchTab('tab-feat')"
+          style="margin-top:18px;"
+        >
+          Next: Feature Extraction →
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- TAB 3 : FEATURE EXTRACTION -->
+    <!-- ===================================================== -->
+
+    <section
+      class="tab-panel"
+      id="tab-feat"
+    >
+
+      <div class="section-header">
+
+        <h2>🔬 Feature Extraction</h2>
+
+        <p>
+          MobileNetV2 extracts deep visual features from the retinal image.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+
+            <div class="stat-value">
+              MobileNetV2
+            </div>
+
+            <div class="stat-label">
+              Backbone
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-value">
+              ImageNet
+            </div>
+
+            <div class="stat-label">
+              Pre-trained Weights
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-value">
+              144
+            </div>
+
+            <div class="stat-label">
+              Feature Channels
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          id="extractBtn"
+          style="margin-top:18px;"
+        >
+          🔬 Extract Features
+        </button>
+
+      </div>
+
+
+      <div
+        class="card"
+        id="fmSection"
+        style="display:none;"
+      >
+
+        <div class="card-title">
+          Feature Maps
+        </div>
+
+        <div
+          class="fm-grid"
+          id="fmGrid"
+        ></div>
+
+        <p
+          id="featureDesc"
+          style="margin-top:14px;"
+        ></p>
+
+
+        <button
+          class="btn btn-primary"
+          onclick="switchTab('tab-train')"
+          style="margin-top:18px;"
+        >
+          Next: Training →
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- TAB 4 : TRAINING -->
+    <!-- ===================================================== -->
+
+    <section
+      class="tab-panel"
+      id="tab-train"
+    >
+
+      <div class="section-header">
+
+        <h2>🚀 Model Training</h2>
+
+        <p>
+          Train a CNN model for five diabetic retinopathy severity classes.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="card-title">
+          Training Configuration
+        </div>
+
+
+        <div
+          style="
+          display:flex;
+          gap:25px;
+          flex-wrap:wrap;
+          align-items:center;
+          margin-bottom:18px;
+          "
+        >
+
+          <label>
+
+            Epochs
+
+            <input
+              id="epochsInput"
+              type="number"
+              value="10"
+              min="1"
+              max="50"
+              style="
+              display:block;
+              margin-top:6px;
+              padding:8px;
+              width:100px;
+              "
+            >
+
+          </label>
+
+
+          <div>
+            <small>Batch Size</small>
+            <strong>16</strong>
+          </div>
+
+
+          <div>
+            <small>Optimizer</small>
+            <strong>Adam</strong>
+          </div>
+
+
+          <div>
+            <small>Classes</small>
+            <strong>5</strong>
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          id="trainBtn"
+        >
+          🚀 Start Training
+        </button>
+
+      </div>
+
+
+      <div
+        class="card"
+        id="trainSection"
+        style="display:none;"
+      >
+
+        <div class="card-title">
+          Training Progress
+        </div>
+
+
+        <div class="epoch-bar">
+
+          <div
+            class="epoch-fill"
+            id="epochFill"
+          ></div>
+
+        </div>
+
+
+        <div style="overflow-x:auto;margin-top:16px;">
+
+          <table class="train-table">
+
+            <thead>
+
+              <tr>
+                <th>Epoch</th>
+                <th>Train Loss</th>
+                <th>Val Loss</th>
+                <th>Train Accuracy</th>
+                <th>Val Accuracy</th>
+              </tr>
+
+            </thead>
+
+            <tbody
+              id="epochTableBody"
+            ></tbody>
+
+          </table>
+
+        </div>
+
+
+        <div
+          class="charts-grid"
+          style="margin-top:20px;"
+        >
+
+          <div class="chart-wrap">
+
+            <div class="chart-title">
+              Accuracy Curves
+            </div>
+
+            <canvas id="accChart"></canvas>
+
+          </div>
+
+
+          <div class="chart-wrap">
+
+            <div class="chart-title">
+              Loss Curves
+            </div>
+
+            <canvas id="lossChart"></canvas>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          onclick="switchTab('tab-predict')"
+          style="margin-top:18px;"
+        >
+          Next: Prediction →
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- TAB 5 : PREDICTION -->
+    <!-- ===================================================== -->
+
+    <section
+      class="tab-panel"
+      id="tab-predict"
+    >
+
+      <div class="section-header">
+
+        <h2>🧠 Diabetic Retinopathy Prediction</h2>
+
+        <p>
+          Use the trained CNN model to analyse the uploaded retinal image.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="card-title">
+          AI Prediction
+        </div>
+
+
+        <div
+          style="
+          display:flex;
+          gap:15px;
+          flex-wrap:wrap;
+          margin-bottom:20px;
+          "
+        >
+
+          <div class="stat-card">
+
+            <div class="stat-value">
+              5
+            </div>
+
+            <div class="stat-label">
+              Severity Classes
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-value">
+              CNN
+            </div>
+
+            <div class="stat-label">
+              Model
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-value">
+              Softmax
+            </div>
+
+            <div class="stat-label">
+              Output
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          id="predictBtn"
+          
+        >
+          🧠 Predict Diabetic Retinopathy
+        </button>
+
+
+        <div
+          id="predictionResult"
+          style="
+          display:none;
+          margin-top:25px;
+          padding:25px;
+          border-radius:12px;
+          text-align:center;
+          background:rgba(0,212,255,0.06);
+          border:1px solid rgba(0,212,255,0.25);
+          "
+        >
+
+          <div
+            style="
+            font-size:0.85rem;
+            color:var(--text-muted);
+            "
+          >
+            AI Prediction
+          </div>
+
+
+          <div
+            id="predictionClass"
+            style="
+            font-size:2rem;
+            font-weight:700;
+            margin:10px 0;
+            "
+          >
+            —
+          </div>
+
+
+          <div
+            id="predictionConfidence"
+            style="
+            font-size:1.1rem;
+            color:var(--accent-blue);
+            "
+          >
+            Confidence: —
+          </div>
+
+
+        <div
+            id="predictionMessage"
+            style="
+            margin-top:15px;
+            color:var(--text-muted);
+            "
+        >
+        </div>
+        <div id="probabilityList"  style="margin-top:20px;" ></div>
+
+ </div>
+
+
+      <div class="card">
+
+        <div class="card-title">
+          DR Severity Classes
+        </div>
+
+
+        <div
+          style="
+          display:grid;
+          grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+          gap:12px;
+          "
+        >
+
+          <div class="stat-card">
+            <div style="font-size:1.5rem;">😊</div>
+            <strong>Class 0</strong>
+            <div>No DR</div>
+          </div>
+
+
+          <div class="stat-card">
+            <div style="font-size:1.5rem;">😐</div>
+            <strong>Class 1</strong>
+            <div>Mild</div>
+          </div>
+
+
+          <div class="stat-card">
+            <div style="font-size:1.5rem;">😟</div>
+            <strong>Class 2</strong>
+            <div>Moderate</div>
+          </div>
+
+
+          <div class="stat-card">
+            <div style="font-size:1.5rem;">😨</div>
+            <strong>Class 3</strong>
+            <div>Severe</div>
+          </div>
+
+
+          <div class="stat-card">
+            <div style="font-size:1.5rem;">🚨</div>
+            <strong>Class 4</strong>
+            <div>Proliferative</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- TAB 6 : EVALUATION -->
+    <!-- ===================================================== -->
+
+    <section
+      class="tab-panel"
+      id="tab-eval"
+    >
+
+      <div class="section-header">
+
+        <h2>📊 Model Evaluation</h2>
+
+        <p>
+          Evaluate the trained CNN using classification metrics.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <button
+          class="btn btn-primary"
+          id="evalBtn"
+        >
+          📊 Evaluate Model
+        </button>
+
+      </div>
+
+
+      <div
+        id="evalSection"
+        style="display:none;"
+      >
+
+        <div class="metric-row">
+
+          <div class="metric-card blue">
+            <div class="mv" id="mAcc">—</div>
+            <div class="ml">Accuracy</div>
+          </div>
+
+
+          <div class="metric-card teal">
+            <div class="mv" id="mPrec">—</div>
+            <div class="ml">Precision</div>
+          </div>
+
+
+          <div class="metric-card pink">
+            <div class="mv" id="mRec">—</div>
+            <div class="ml">Recall</div>
+          </div>
+
+
+          <div class="metric-card gold">
+            <div class="mv" id="mF1">—</div>
+            <div class="ml">F1 Score</div>
+          </div>
+
+
+          <div class="metric-card purple">
+            <div class="mv" id="mAUC">—</div>
+            <div class="ml">ROC AUC</div>
+          </div>
+
+        </div>
+
+
+        <div class="eval-grid">
+
+          <div class="card">
+
+            <div class="card-title">
+              Confusion Matrix
+            </div>
+
+            <img
+              id="cmImg"
+              src=""
+              alt="Confusion Matrix"
+              style="width:100%;"
+            >
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              ROC Curve
+            </div>
+
+            <img
+              id="rocImg"
+              src=""
+              alt="ROC Curve"
+              style="width:100%;
+              >
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- ===================================================== -->
+<!-- HOW TO RUN -->
+<!-- ===================================================== -->
+
+<section class="tab-panel" id="tab-run">
+
+  <div class="section-header">
+    <h2>📘 How to Run</h2>
+    <p>
+      Complete instructions to install dependencies and start
+      the Diabetic Retinopathy ML application.
+    </p>
+  </div>
+
+
+  <!-- STEP 1 -->
+  <div class="run-step">
+
+    <div class="run-step-header">
+
+      <div class="run-step-num">1</div>
+
+      Install Python
+
+    </div>
+
+    <div class="run-step-body">
+
+      <p>
+        Make sure Python 3.10 or higher is installed.
+      </p>
+
+      <div class="code-block">
+
+<pre>python --version
+pip --version</pre>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- STEP 2 -->
+  <div class="run-step">
+
+    <div class="run-step-header">
+
+      <div class="run-step-num">2</div>
+
+      Open Project Folder
+
+    </div>
+
+    <div class="run-step-body">
+
+      <p>
+        Open Command Prompt or PowerShell and navigate
+        to your project folder.
+      </p>
+
+      <div class="code-block">
+
+<pre>cd "C:\Users\YourName\Desktop\Diabetic_Retinopathy"</pre>
+
+      </div>
+
+      <p>
+        Replace <strong>YourName</strong> with your Windows username.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- STEP 3 -->
+  <div class="run-step">
+
+    <div class="run-step-header">
+
+      <div class="run-step-num">3</div>
+
+      Create Virtual Environment
+
+    </div>
+
+    <div class="run-step-body">
+
+      <p>
+        Creating a virtual environment is recommended.
+      </p>
+
+      <div class="code-block">
+
+<pre>python -m venv venv</pre>
+
+      </div>
+
+      <p style="margin-top:12px;">
+        Activate it on Windows:
+      </p>
+
+      <div class="code-block">
+
+<pre>venv\Scripts\activate</pre>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- STEP 4 -->
+  <div class="run-step">
+
+    <div class="run-step-header">
+
+      <div class="run-step-num">4</div>
+
+      Install Dependencies
+
+    </div>
+
+    <div class="run-step-body">
+
+      <p>
+        Install all required Python libraries.
+      </p>
+
+      <div class="code-block">
+
+<pre>pip install -r requirements.txt</pre>
+
+      </div>
+
+      <p style="margin-top:12px;">
+
+        Required packages include:
+
+        <strong>
+          Flask, Flask-CORS, TensorFlow,
+          OpenCV, NumPy, Pillow,
+          Matplotlib and Scikit-learn.
+        </strong>
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- STEP 5 -->
+  <div class="run-step">
+
+    <div class="run-step-header">
+
+      <div class="run-step-num">5</div>
+
+      Start Flask Server
+
+    </div>
+
+    <div class="run-step-body">
+
+      <p>
+        Run the Flask application.
+      </p>
+
+      <div class="code-block">
+
+<pre>python app.py</pre>
+
+      </div>
+
+      <p style="margin-top:12px;">
+        You should see something similar to:
+      </p>
+
+      <div class="code-block">
+
+<pre>============================================================
+  Diabetic Retinopathy ML Server
+  Open http://localhost:5000 in your browser
+============================================================
+
+ * Running on http://127.0.0.1:5000</pre>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- STEP 6 -->
+  <div class="run-step">
+
+    <div class="run-step-header">
+
+      <div class="run-step-num">6</div>
+
+      Open the Web Application
+
+    </div>
+
+    <div class="run-step-body">
+
+      <p>
+        Open your browser and enter:
+      </p>
+
+      <div class="code-block">
+
+<pre>http://localhost:5000</pre>
+
+      </div>
+
+      <p style="margin-top:12px;">
+        The Diabetic Retinopathy Detection dashboard will open.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- PIPELINE -->
+  <div class="card">
+
+    <div class="card-title">
+      🔄 ML Pipeline
+    </div>
+
+    <div
+      style="
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      padding:20px 5px;
+      "
+    >
+
+      <span class="stat-card">
+        📂 Upload Image
+      </span>
+
+      <span>→</span>
+
+      <span class="stat-card">
+        ⚙️ Preprocess
+      </span>
+
+      <span>→</span>
+
+      <span class="stat-card">
+        🔬 Feature Extraction
+      </span>
+
+      <span>→</span>
+
+      <span class="stat-card">
+        🚀 Training
+      </span>
+
+      <span>→</span>
+
+      <span class="stat-card">
+        🧠 Prediction
+      </span>
+
+      <span>→</span>
+
+      <span class="stat-card">
+        📊 Evaluation
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+                 
